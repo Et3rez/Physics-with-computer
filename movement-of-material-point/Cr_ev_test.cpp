@@ -86,11 +86,51 @@ PAR.deg=M_PI/180.0;
     
 } //C_par_init
 
+//Cr-accel
+void C_acc1(C_T_PAR &PAR, C_T_A1 A1, C_T_A1 R1, C_T_A1 V1)
+// PAR - parameters structure
+// R1  - position vector [m]
+// V1  - velocity vector [m/s]
+// A1  - returns acceleration vector [m/s^2]
+{   T_FL v,zx,zy;
 
+    A1[1]=0.0; //ax=0
+    A1[2]=-PAR.g;
+    PAR.am=PAR.sm;
+
+    //end of free throw acceleration formula. 
+    //Next step will be performed only for rocket and/or for motion with drag.
+
+    if ((PAR.l_rak)||(PAR.l_op))
+    {   v=sqrt(V1[1]*V1[1]+V1[2]*V1[2]); // velocity
+        zx=V1[1]/v; zy=V1[2]/2; // velocity versors
+        if (PAR.l_rak)
+        {   PAR.am=PAR.sm-PAR.c*PAR.t; //actual mass
+            if (PAR.am>=PAR.fm) // add rocket acceleration
+            {   A1[1]=A1[1]+PAR.f_rak/PAR.am*zx;
+                A1[2]=A1[2]+PAR.f_rak/PAR.am*zy;
+            } 
+            else;
+            {   cout << "End of engine operation\n";
+                PAR.l_rak=false;
+            }
+        } 
+        else PAR.am=PAR.fm; // actual mass = final mass
+
+        // current mass am for rocket has been calculated.
+        // next step will be performed if drag is on.
+
+        if (PAR.l_op) //subtract deceleration due to drag
+        {   v=v*v*PAR.b/PAR.am;
+            A1[1]=A1[1]-v*zx;
+            A1[2]=A1[2]-v*zy;
+        }
+    } 
+} //C_acc1
 
 
 int main ()
-{   C_T_PAR par;
+{ C_T_PAR par;
     std::cout << "Audi multa, dic pauca!\n";
     C_par_init(par);
     return 0;
