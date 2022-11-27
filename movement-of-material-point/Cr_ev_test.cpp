@@ -128,6 +128,33 @@ void C_acc1(C_T_PAR &PAR, C_T_A1 A1, C_T_A1 R1, C_T_A1 V1)
     } 
 } //C_acc1
 
+//C-ev Euler and Verlet integrators
+
+void C_e_step(C_T_PAR &PAR,C_T_A1 ACC1,C_T_A1 ROLD1, C_T_A1 RNEW1,
+                            C_T_A1 VOLD1,C_T_A1 VNEW1, T_FL H, T_FL BETA)
+
+// Euler step: Rnew=r(t+h), Rold=r(t), Vnew=v(t+h), Vold=v(t)
+{   C_acc1(PAR,ACC1,ROLD1,VOLD1); // acceleration defined by ROLD1,VOLD1
+        for (int k=1;k<=PAR.neq;k++)
+        {   VNEW1[k]=VOLD1[k]+ACC1[k]*H; // new velocity
+            RNEW1[k]=ROLD1[k]+(BETA*VOLD1[k]+(1.0-BETA)*VNEW1[k])*H+0.5*ACC1[k]*H*H;
+        }   // new position by weighted sum of olf and new velocities
+} // C_e_step
+
+void C_v_step(C_T_PAR &PAR,C_T_A1 ACC1,C_T_A1 ROLD1,C_T_A1 RNEW1,
+                C_T_A1 ROLDER1,C_T_A1 VOLD1,C_T_A1 VNEV1, T_FL H, T_FL BETA)
+
+// Verlet step: Rnew=r(t+h),Rold=r(t),Rolder=r(t-h),Vold=v(t)
+// Vnew=V(t+h); Verlet starts in 2nd step; first do single Euler step
+{   C_acc1(PAR,ACC1,ROLD1,VOLD1); // acceleration defined by ROLD1, VOLD1
+    for (int k=1;k<=PAR.neq;k++)
+    {   RNEW1[k]=(1.0+BETA)*ROLD1[k]-BETA*ROLDER1[k]+ACC1[k]*H*H; 
+            // new position, with a possibility of damping
+        VOLD1[k]=0.5*(RNEW1[k]-ROLDER1[k])/H; //old velocity
+    }
+    VNEW1[k]=VOLD1[k]+ACC1[k]*H; // new velocity
+} // C_v_step
+
 
 int main ()
 { C_T_PAR par;
