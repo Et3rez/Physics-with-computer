@@ -142,7 +142,7 @@ void C_e_step(C_T_PAR &PAR,C_T_A1 ACC1,C_T_A1 ROLD1, C_T_A1 RNEW1,
 } // C_e_step
 
 void C_v_step(C_T_PAR &PAR,C_T_A1 ACC1,C_T_A1 ROLD1,C_T_A1 RNEW1,
-                C_T_A1 ROLDER1,C_T_A1 VOLD1,C_T_A1 VNEV1, T_FL H, T_FL BETA)
+                C_T_A1 ROLDER1,C_T_A1 VOLD1,C_T_A1 VNEW1, T_FL H, T_FL BETA)
 
 // Verlet step: Rnew=r(t+h),Rold=r(t),Rolder=r(t-h),Vold=v(t)
 // Vnew=V(t+h); Verlet starts in 2nd step; first do single Euler step
@@ -151,8 +151,9 @@ void C_v_step(C_T_PAR &PAR,C_T_A1 ACC1,C_T_A1 ROLD1,C_T_A1 RNEW1,
     {   RNEW1[k]=(1.0+BETA)*ROLD1[k]-BETA*ROLDER1[k]+ACC1[k]*H*H; 
             // new position, with a possibility of damping
         VOLD1[k]=0.5*(RNEW1[k]-ROLDER1[k])/H; //old velocity
+        VNEW1[k]=VOLD1[k]+ACC1[k]*H; // new velocity
     }
-    VNEW1[k]=VOLD1[k]+ACC1[k]*H; // new velocity
+   
 } // C_v_step
 
 
